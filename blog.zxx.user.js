@@ -12,7 +12,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
+;(function() {
     'use strict';
     var el = {
         root: $("#page")
@@ -27,4 +27,4 @@
     el.root.find(".da_article").remove()
     el.root.find(".da_title").remove()
     el.root.find(".da_col2").remove()
-})();
+})()
