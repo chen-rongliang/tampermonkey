@@ -7,31 +7,34 @@
 // @create          2018-08-22
 // @match        *://blog.csdn.net/*
 // @run-at       document-end
-// @require      https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js
 // @grant           GM_addStyle
 // ==/UserScript==
 
-(function() {
+(function(doc) {
     'use strict';
-    var el = {
-        root: $("body")
-    }
+    var lists = [
+        '.fourth_column',
+        '#asideProfile ~ *',
+        '.pulllog-box',
+        '[id^="dmp_ad"]',
+        '.recommend-ad-box',
+        '.recommend-download-box',
+        '.recommend-fixed-box div.right-item',
+        '[class^="p4courset3"]',
+        'a[href^="https://download.csdn.net"]',
+        'a[href^="http://union.dangdang.com"]',
+        '.hide-article-box',
+        '.btn-remove',
+        '.btn-remove ~ *',
+        '._360_interactive ',
+        '.hidden'
+    ],
+    spac = [
+        'a[href^="https://download.csdn.net"],a[href^="http://union.dangdang.com"]{display:none!important}',
+        '#article_content,.article_content.tracking-ad{height:auto!important}'
+    ]
 
-    el.root.find(".box-box-aways").remove()
-    el.root.find(".box-box-large").remove()
-    el.root.find(".meau-list").remove()
-    el.root.find("info-div").remove()
-    el.root.find("aside").remove()
-    el.root.find(".pulllog-box").remove()
-    el.root.find("#adContent").remove()
+    document.body.insertAdjacentHTML('beforeEnd', '<style>'+ lists.join(',') +'{opacity:0!important;pointer-events:none!important}'+spac.join('')+'</style>')
 
-    el.root.find(".blog-content-box").siblings('div').css({
-        'position': 'fixed',
-        'top': '-9999px'
-    })
-    el.root.find(".comment-box").remove()
-    el.root.find("newsfeed").remove()
 
-    el.root.append('<style>@media screen and (min-width: 1320px){.container main, .pulllog main{width:auto}}.left-menu li:not(:first-child){display:none}</style>')
-
-})();
+})(document);
