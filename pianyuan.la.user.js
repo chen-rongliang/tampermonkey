@@ -5,7 +5,8 @@
 // @description  干掉广告
 // @author       MO
 // @create       2019-05-24
-// @match        *://www.pianyuan.la*
+// @match        *://pianyuan.la/*
+// @match        *://www.pianyuan.la/*
 // @run-at       document-end
 // @grant        none
 // ==/UserScript==
