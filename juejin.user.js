@@ -13,8 +13,8 @@
 (function(doc) {
     'use strict';
 
-    // 黑名单
-    let blackList = ['1706088134350782','2647279730444574'];
+    // 黑名单用户id
+    let blackList = ['123456','456798'];
 
     // 检测黑名单id
     function checkUser ($el, list) {
