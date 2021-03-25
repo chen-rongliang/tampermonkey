@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         屏蔽掘金用户
 // @namespace    [url=mailto:772332013@qq.com]772332013@qq.com[/url]
-// @version      1.1.0
+// @version      1.1.1
 // @description  屏蔽不感兴趣掘金用户，仅限话题区。等页面加载好之后，鼠标移动到每条资讯上，右上角都会有个关闭按钮，点击就会隐藏。如果想取消，自行编辑localStorage的blackList字段
 // @author       MO
 // @create          2021-03-25
@@ -65,7 +65,7 @@
 
     window.addEventListener('load', () => {
         // 插入节点
-        $el.insertAdjacentHTML('afterBegin','<style>.pin-list-wrap .item{position:relative}.pin-list-wrap .user-popover-box{pointer-events:none}.pin-list-wrap .user-popover-box:after{display:block;width:20px;line-height:20px;content:\'×\';position:absolute;top:0;right:0;font-size:16px;text-align:center;border:1px solid;color:#f69;cursor:pointer;opacity:0;transition:opacity 0.25s;pointer-events:auto}.pin-list-wrap .item:hover .user-popover-box:after{opacity:1}</style>');
+        $el.insertAdjacentHTML('afterBegin','<style>.pin-list-wrap .item{position:relative}.pin-list-wrap .user-popover-box{pointer-events:none}.pin-list-wrap .user-popover-box a{pointer-events:auto}.pin-list-wrap .user-popover-box:after{display:block;width:20px;line-height:20px;content:\'×\';position:absolute;top:0;right:0;font-size:16px;text-align:center;border:1px solid;color:#f69;cursor:pointer;opacity:0;transition:opacity 0.25s;pointer-events:auto}.pin-list-wrap .item:hover .user-popover-box:after{opacity:1}</style>');
         $el.addEventListener('click', ev => {
             let target = ev.target || ev.srcElement;
             if(target.classList.contains('user-popover-box')) {
