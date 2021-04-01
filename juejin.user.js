@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         屏蔽掘金用户
 // @namespace    [url=mailto:772332013@qq.com]772332013@qq.com[/url]
-// @version      1.1.2
+// @version      1.1.3
 // @description  屏蔽不感兴趣掘金用户，仅限话题区。等页面加载好之后，鼠标移动到每条资讯上，右上角都会有个关闭按钮，点击就会隐藏。如果想取消，自行编辑localStorage的blackList字段
 // @author       MO
 // @create       2021-04-01
@@ -40,11 +40,14 @@
             }
             // 发现包含黑名单id
             let target = $el.querySelector('.user-popover-box[st\\3Astate]');
-            result.id = target.getAttribute('st:state');
-            if(target && blackListReg.test(result.id)) {
-                // 标记true
-                result.match = true;
+            if(target){
+                result.id = target.getAttribute('st:state');
+                if(blackListReg.test(result.id)) {
+                    // 标记true
+                    result.match = true
+                }
             }
+            
             return result;
         }
 
@@ -70,7 +73,7 @@
                     $li[len].style.display = 'none'
                 } else {
                     // 插入隐藏按钮
-                    addHideBtn($li[len], result.id)
+                    result.id && addHideBtn($li[len], result.id)
                 }
             }
         }
