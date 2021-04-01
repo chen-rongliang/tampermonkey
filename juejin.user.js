@@ -1,78 +1,118 @@
 // ==UserScript==
 // @name         屏蔽掘金用户
 // @namespace    [url=mailto:772332013@qq.com]772332013@qq.com[/url]
-// @version      1.1.1
+// @version      1.1.2
 // @description  屏蔽不感兴趣掘金用户，仅限话题区。等页面加载好之后，鼠标移动到每条资讯上，右上角都会有个关闭按钮，点击就会隐藏。如果想取消，自行编辑localStorage的blackList字段
 // @author       MO
-// @create          2021-03-25
+// @create       2021-04-01
 // @match        *://juejin.cn/*
-// @run-at       document-end
-// @grant           GM_addStyle
+// @run-at       document-start
+// @grant        window.onurlchange
 // ==/UserScript==
 
-(function(doc) {
-    'use strict';
+(function(win, doc) {
+    'use strict'
 
-    let $el = doc.querySelector('.pin-list-wrap');
+    if (win.onurlchange === null) {
 
-    let blackList = localStorage.getItem('blackList');  // 黑名单用户id
-    blackList = blackList ? blackList.split(',') : [];
+        // 主元素
+        let $el = null
+        let $ul = null
 
-    let blackListReg = new RegExp(blackList.join('|')||'[^\\d]');
-    let len = 0;
-
-    // 检测黑名单id
-    function checkUser ($el, list) {
-        let result = false;
-        // 发现包含黑名单id
-        let target = $el.querySelector('.user-popover-box[st\\3Astate]');
-        if(target && blackListReg.test(target.getAttribute('st:state'))) {
-            // 标记true
-            result = true;
+        // 黑名单用户id
+        let blackList = undefined
+        if(localStorage.getItem('blackList')) {
+            blackList = localStorage.getItem('blackList').split(',')
+        } else {
+            blackList = []
         }
-        return result;
-    }
-    // 设置列表
-    function setList () {
+        // 校对正则生成
+        let blackListReg = new RegExp(blackList.join('|')||'[^\\d]')
 
-        if(!blackList.length) return
+        // 计数器
+        let len = 0
 
-        let list = $el.querySelectorAll('li')
+        // 检测黑名单id
+        function checkUser ($el, list) {
+            let result = {
+                id: undefined,
+                match: false
+            }
+            // 发现包含黑名单id
+            let target = $el.querySelector('.user-popover-box[st\\3Astate]');
+            result.id = target.getAttribute('st:state');
+            if(target && blackListReg.test(result.id)) {
+                // 标记true
+                result.match = true;
+            }
+            return result;
+        }
 
-        // 读取新的列表li
-        for(;len < list.length; len++) {
-            // 命中黑名单就去除
-            if(checkUser(list[len], blackList)){
-                list[len].style.display = 'none';
+        // 插入隐藏按钮
+        function addHideBtn ($el, id) {
+            setTimeout(() => {
+                let $btn = doc.createElement('button')
+                $btn.classList.add('btn','btn-hide')
+                $btn.dataset.id = id
+
+                $el.insertAdjacentHTML('afterBegin','<button class="btn btn-hide" data-id="'+ id +'">× 屏蔽此用户</button>')
+            }, 100)
+        }
+
+        // 设置列表
+        function setList () {
+            let $li = $ul.querySelectorAll('li')
+            // 读取新的列表li
+            for(;len < $li.length; len++) {
+                // 命中黑名单就去除
+                let result = checkUser($li[len], blackList)
+                if(result.match){
+                    $li[len].style.display = 'none'
+                } else {
+                    // 插入隐藏按钮
+                    addHideBtn($li[len], result.id)
+                }
             }
         }
-    }
-    // 设置黑名单
-    function setBlackList (id) {
-        blackList.push(id)
-        localStorage.setItem('blackList',blackList.join())
-        blackListReg = new RegExp(blackList.join('|'))
-        len = 0
-        setList()
-    }
 
+        // 主元素插入监听
+        function insertListenFn () {
+            $ul = this.querySelector('.pin-list')
+            if($ul) setList()
+        }
+        // 按钮事件绑定
+        function btnHideFn ({ target }) {
+            if(target && target.classList.contains('btn-hide')) {
+                let id = target.dataset.id
+                blackList.push(id)
+                localStorage.setItem('blackList', blackList.join())
+                blackListReg = new RegExp(blackList.join('|'))
 
-    // 监听元素事件
-    if($el){
-        $el.addEventListener('DOMNodeRemoved', function() { len = 0; });
-        $el.addEventListener('DOMNodeInserted', setList, false);
-    }
-
-    window.addEventListener('load', () => {
-        // 插入节点
-        $el.insertAdjacentHTML('afterBegin','<style>.pin-list-wrap .item{position:relative}.pin-list-wrap .user-popover-box{pointer-events:none}.pin-list-wrap .user-popover-box a{pointer-events:auto}.pin-list-wrap .user-popover-box:after{display:block;width:20px;line-height:20px;content:\'×\';position:absolute;top:0;right:0;font-size:16px;text-align:center;border:1px solid;color:#f69;cursor:pointer;opacity:0;transition:opacity 0.25s;pointer-events:auto}.pin-list-wrap .item:hover .user-popover-box:after{opacity:1}</style>');
-        $el.addEventListener('click', ev => {
-            let target = ev.target || ev.srcElement;
-            if(target.classList.contains('user-popover-box')) {
-                let userid = target.getAttribute('st:state');
-                setBlackList(userid)
+                target.parentNode.style.display = 'none'
             }
-        }, false);
-    })
+        }
+        // 事件绑定
+        function bindEv () {
 
-})(document);
+            $el && $el.removeEventListener('DOMNodeInserted', insertListenFn, false)
+            $el && $el.removeEventListener('click', btnHideFn, false)
+
+            $el = doc.querySelector('.pin-list-view')
+            $el && $el.addEventListener('DOMNodeInserted', insertListenFn, false)
+            $el && $el.addEventListener('click', btnHideFn, false)
+        }
+
+        // url变化事件
+        win.addEventListener('urlchange', ({url}) => {
+
+            len = 0
+
+            bindEv()
+
+        })
+
+        // 注入按钮style
+        doc.querySelector('head').insertAdjacentHTML('beforeEnd', '<style>.pin-list .item{position:relative}.pin-list .item .btn-hide{line-height:24px;padding:0 12px;position:absolute;top:27px;right:86px;border:1px solid;color:#007fff;background-color:#fff;}</style>')
+    }
+
+})(window, document);
