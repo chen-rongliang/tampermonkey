@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         屏蔽掘金用户
 // @namespace    [url=mailto:772332013@qq.com]772332013@qq.com[/url]
-// @version      1.1.3
+// @version      1.1.4
 // @description  屏蔽不感兴趣掘金用户，仅限话题区。等页面加载好之后，鼠标移动到每条资讯上，右上角都会有个关闭按钮，点击就会隐藏。如果想取消，自行编辑localStorage的blackList字段
 // @author       MO
 // @create       2021-04-01
@@ -72,6 +72,8 @@
                 if(result.match){
                     $li[len].style.display = 'none'
                 } else {
+                    // 忽略树洞id
+                    if(result.id == '1398234521548542') return
                     // 插入隐藏按钮
                     result.id && addHideBtn($li[len], result.id)
                 }
